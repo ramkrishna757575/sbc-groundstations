@@ -1,1 +1,6 @@
 SUBSYSTEM=="net", ACTION=="add", ENV{ID_BUS}=="usb", ENV{INTERFACE}=="eth0", RUN+="/sbin/ifup eth0"
+
+# Android "USB tethering": the phone shows up as a point-to-point usbN link and
+# serves DHCP. Take an address from it so pixelpilot's restream can find it.
+SUBSYSTEM=="net", ACTION=="add", KERNEL=="usb[0-9]*", DRIVERS=="rndis_host|cdc_ncm|cdc_ether", RUN+="/usr/sbin/usb-tether add %k"
+SUBSYSTEM=="net", ACTION=="remove", KERNEL=="usb[0-9]*", RUN+="/usr/sbin/usb-tether remove %k"
