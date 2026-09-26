@@ -1,0 +1,22 @@
+#!/bin/sh
+# Run a DHCP client on a USB-tethered phone interface.
+# Called from udev (90-usb-net.rules): usb-tether add|remove <iface>
+
+IFACE=$2
+PIDFILE=/var/run/udhcpc.$IFACE.pid
+
+case "$1" in
+	add)
+		start-stop-daemon -S -b -q -p $PIDFILE -x /sbin/udhcpc -- \
+			-f -i $IFACE -p $PIDFILE -s /etc/udhcpc/udhcpc.tether.script
+		;;
+	remove)
+		[ -f $PIDFILE ] || exit 0
+		start-stop-daemon -K -q -p $PIDFILE
+		rm -f $PIDFILE
+		;;
+	*)
+		echo "Usage: $0 {add|remove} <iface>"
+		exit 1
+		;;
+esac

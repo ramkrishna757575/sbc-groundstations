@@ -116,6 +116,18 @@ boot
   - Serial connection
   - Network connection (SBC is on `192.168.5.1`)
 
+# Video to an Android Phone (USB Tethering)
+
+The live video can be restreamed to an Android phone over USB:
+
+1. Connect the phone to a USB host port of the ground station (the phone must
+   be the USB device, not the host).
+2. On the phone, enable *Settings → Network → Hotspot & tethering → USB tethering*.
+   The ground station picks up an address from the phone automatically.
+3. In the OSD menu, open *System → Restream* and switch *Enabled* on. The
+   phone is detected under *Target* (`Auto` picks it).
+4. Play RTP from UDP port `5600` on the phone, e.g. with PixelPilot for Android.
+
 # Custom Build (Linux/WSL2)
 
 Custom builds rely on Buildroot [dependencies](https://buildroot.org/downloads/manual/manual.html#requirement).

@@ -1,0 +1,16 @@
+#!/bin/sh
+
+# udhcpc script for USB-tethered phones.
+# Address only: the apfpv script drops routes and DNS, so the phone never
+# becomes the ground station's gateway. Once bound, ping the phone so it lands
+# in the ARP table, which is where pixelpilot's restream looks for clients.
+
+/etc/udhcpc/udhcpc.apfpv.script "$@"
+
+case "$1" in
+	renew|bound)
+		[ -n "$serverid" ] && ping -c 1 -W 1 -I $interface $serverid >/dev/null 2>&1
+		;;
+esac
+
+exit 0
