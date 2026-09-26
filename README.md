@@ -124,9 +124,15 @@ The live video can be restreamed to an Android phone over USB:
    be the USB device, not the host).
 2. On the phone, enable *Settings → Network → Hotspot & tethering → USB tethering*.
    The ground station picks up an address from the phone automatically.
-3. In the OSD menu, open *System → Restream* and switch *Enabled* on. The
-   phone is detected under *Target* (`Auto` picks it).
-4. Play RTP from UDP port `5600` on the phone, e.g. with PixelPilot for Android.
+3. Play RTP from UDP port `5600` on the phone, e.g. with PixelPilot for Android.
+
+Without an HDMI display (e.g. in the field), the video is relayed to the phone
+as soon as tethering is up, with no further setup. DVR recording is not
+available in this mode.
+
+With an HDMI display connected, restream from the OSD menu instead: open
+*System → Restream*, switch *Enabled* on and pick the phone's address under
+*Target* (`Auto` may pick a Wi-Fi client instead).
 
 # Custom Build (Linux/WSL2)
 

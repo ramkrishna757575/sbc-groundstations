@@ -1,9 +1,19 @@
 #!/bin/sh
-# Run a DHCP client on a USB-tethered phone interface.
+# Run a DHCP client on a USB-tethered phone interface, and relay the video to
+# the phone when no display is connected.
 # Called from udev (90-usb-net.rules): usb-tether add|remove <iface>
+# Called from udhcpc.tether.script:   usb-tether relay <iface> <phone ip>
+#                                     usb-tether relay-stop <iface>
 
 IFACE=$2
 PIDFILE=/var/run/udhcpc.$IFACE.pid
+RELAY_PIDFILE=/var/run/usb-tether-relay.$IFACE.pid
+
+relay_stop() {
+	[ -f $RELAY_PIDFILE ] || return 0
+	start-stop-daemon -K -q -p $RELAY_PIDFILE
+	rm -f $RELAY_PIDFILE
+}
 
 case "$1" in
 	add)
@@ -11,12 +21,24 @@ case "$1" in
 			-f -i $IFACE -p $PIDFILE -s /etc/udhcpc/udhcpc.tether.script
 		;;
 	remove)
+		relay_stop
 		[ -f $PIDFILE ] || exit 0
 		start-stop-daemon -K -q -p $PIDFILE
 		rm -f $PIDFILE
 		;;
+	relay)
+		# With a display, pixelpilot restreams to the phone. Without one it
+		# cannot start, so copy the wfb_rx video stream straight to the phone.
+		grep -qx connected /sys/class/drm/card*-HDMI-*/status 2>/dev/null && exit 0
+		relay_stop
+		start-stop-daemon -S -b -q -m -p $RELAY_PIDFILE -x /usr/bin/socat -- \
+			-u UDP4-RECV:5600,bind=127.0.0.1 UDP4-SENDTO:$3:5600
+		;;
+	relay-stop)
+		relay_stop
+		;;
 	*)
-		echo "Usage: $0 {add|remove} <iface>"
+		echo "Usage: $0 {add|remove|relay|relay-stop} <iface> [phone ip]"
 		exit 1
 		;;
 esac
